@@ -118,6 +118,7 @@
             this.BtnAddPalette.TabIndex = 5;
             this.BtnAddPalette.Text = "+ 팔레트에 추가";
             this.BtnAddPalette.UseVisualStyleBackColor = true;
+            this.BtnAddPalette.Click += new System.EventHandler(this.BtnAddPalette_Click);
             // 
             // listPalette
             // 
@@ -126,29 +127,36 @@
             this.columnHeader2,
             this.columnHeader3,
             this.columnHeader4});
+            this.listPalette.FullRowSelect = true;
             this.listPalette.HideSelection = false;
             this.listPalette.Location = new System.Drawing.Point(123, 175);
+            this.listPalette.MultiSelect = false;
             this.listPalette.Name = "listPalette";
             this.listPalette.Size = new System.Drawing.Size(352, 237);
             this.listPalette.TabIndex = 6;
             this.listPalette.UseCompatibleStateImageBehavior = false;
             this.listPalette.View = System.Windows.Forms.View.Details;
+            this.listPalette.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ListPalette_MouseClick);
             // 
             // columnHeader1
             // 
             this.columnHeader1.Text = "색상";
+            this.columnHeader1.Width = 80;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "HEX";
+            this.columnHeader2.Width = 80;
             // 
             // columnHeader3
             // 
             this.columnHeader3.Text = "RGB";
+            this.columnHeader3.Width = 101;
             // 
             // columnHeader4
             // 
             this.columnHeader4.Text = "라벨";
+            this.columnHeader4.Width = 87;
             // 
             // Form1
             // 
@@ -167,6 +175,7 @@
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Kolor Picker";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
