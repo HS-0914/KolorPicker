@@ -42,7 +42,14 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.CopyHexMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyRgbMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.DeleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RecentColorsPanel = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // Preview
@@ -130,12 +137,12 @@
             this.listPalette.FullRowSelect = true;
             this.listPalette.HideSelection = false;
             this.listPalette.Location = new System.Drawing.Point(123, 175);
-            this.listPalette.MultiSelect = false;
             this.listPalette.Name = "listPalette";
-            this.listPalette.Size = new System.Drawing.Size(352, 237);
+            this.listPalette.Size = new System.Drawing.Size(352, 240);
             this.listPalette.TabIndex = 6;
             this.listPalette.UseCompatibleStateImageBehavior = false;
             this.listPalette.View = System.Windows.Forms.View.Details;
+            this.listPalette.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ListPalette_KeyDown);
             this.listPalette.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ListPalette_MouseClick);
             // 
             // columnHeader1
@@ -158,11 +165,55 @@
             this.columnHeader4.Text = "라벨";
             this.columnHeader4.Width = 87;
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CopyHexMenuItem,
+            this.CopyRgbMenuItem,
+            this.toolStripSeparator1,
+            this.DeleteMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 76);
+            // 
+            // CopyHexMenuItem
+            // 
+            this.CopyHexMenuItem.Name = "CopyHexMenuItem";
+            this.CopyHexMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.CopyHexMenuItem.Text = "Hex 복사";
+            this.CopyHexMenuItem.Click += new System.EventHandler(this.CopyHexMenuItem_Click);
+            // 
+            // CopyRgbMenuItem
+            // 
+            this.CopyRgbMenuItem.Name = "CopyRgbMenuItem";
+            this.CopyRgbMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.CopyRgbMenuItem.Text = "RGB 복사";
+            this.CopyRgbMenuItem.Click += new System.EventHandler(this.CopyRgbMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(121, 6);
+            // 
+            // DeleteMenuItem
+            // 
+            this.DeleteMenuItem.Name = "DeleteMenuItem";
+            this.DeleteMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.DeleteMenuItem.Text = "삭제";
+            this.DeleteMenuItem.Click += new System.EventHandler(this.DeleteMenuItem_Click);
+            // 
+            // RecentColorsPanel
+            // 
+            this.RecentColorsPanel.Location = new System.Drawing.Point(23, 175);
+            this.RecentColorsPanel.Name = "RecentColorsPanel";
+            this.RecentColorsPanel.Size = new System.Drawing.Size(80, 240);
+            this.RecentColorsPanel.TabIndex = 7;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(494, 434);
+            this.Controls.Add(this.RecentColorsPanel);
             this.Controls.Add(this.BtnAddPalette);
             this.Controls.Add(this.lblToast);
             this.Controls.Add(this.BtnPicker);
@@ -177,6 +228,7 @@
             this.Text = "Kolor Picker";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -197,6 +249,12 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem CopyHexMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CopyRgbMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem DeleteMenuItem;
+        private System.Windows.Forms.FlowLayoutPanel RecentColorsPanel;
     }
 }
 

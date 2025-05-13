@@ -15,15 +15,15 @@ using Gma.System.MouseKeyHook;
 
 namespace KolorPicker
 {
-    public class PaletteItem
-    {
-        public string Hex { get; set; }
-        public string Rgb { get; set; }
-        public string Label { get; set; }
-    }
-
     public partial class Form1 : Form
     {
+        public class PaletteItem
+        {
+            public string Hex { get; set; }
+            public string Rgb { get; set; }
+            public string Label { get; set; }
+        }
+
         [DllImport("user32.dll")]
         public static extern IntPtr GetDC(IntPtr hWnd);
 
@@ -34,8 +34,11 @@ namespace KolorPicker
         public static extern int ReleaseDC(IntPtr hWnd, IntPtr hdc);
 
         IKeyboardMouseEvents globalHook = Hook.GlobalEvents();
-        private readonly string paletteFilePath = Path.Combine(Application.StartupPath, "Palette.json");
+        private readonly string paletteFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, "Palette.json");
         private TextBox editBox;
+        private Queue<Color> recentColors = new Queue<Color>;
+        private const int MaxRecent = 10;
+        //private Queue<string> 
 
         public Form1()
         {
@@ -56,11 +59,11 @@ namespace KolorPicker
 
         private void BtnPicker_Click(object sender, EventArgs e)
         {
-            if(ColorTimer.Enabled)
+            if (ColorTimer.Enabled)
             {
                 ColorTimer.Stop();
             }
-            else 
+            else
             {
                 ColorTimer.Start();
             }
@@ -92,10 +95,9 @@ namespace KolorPicker
 
         private void TxtHex_Click(object sender, EventArgs e)
         {
-            if(!string.IsNullOrWhiteSpace(txtHex.Text))
+            if (!string.IsNullOrWhiteSpace(txtHex.Text))
             {
-                string text = txtHex.Text.Trim();
-                Clipboard.SetText(text);
+                CopyColorCode(txtHex.Text);
                 ShowToast("색상 HEX가 복사완료!");
             }
         }
@@ -104,10 +106,14 @@ namespace KolorPicker
         {
             if (!string.IsNullOrWhiteSpace(txtHex.Text))
             {
-                string text = txtRgb.Text.Trim();
-                Clipboard.SetText(text);
+                CopyColorCode(txtRgb.Text);
                 ShowToast("색상 RGB가 복사완료!");
             }
+        }
+
+        private void CopyColorCode(string text)
+        {
+            Clipboard.SetText(text.Trim());    
         }
 
         private void ShowToast(string message)
@@ -149,6 +155,16 @@ namespace KolorPicker
 
         private void ListPalette_MouseClick(object sender, MouseEventArgs e)
         {
+            if (e.Button == MouseButtons.Left)
+            {
+                ListPalette_Left(sender, e);
+            } else if(e.Button == MouseButtons.Right) {
+                ListPalette_Right(sender, e);
+            }
+        }
+
+        private void ListPalette_Left(object sender, MouseEventArgs e)
+        {
             ListViewHitTestInfo info = listPalette.HitTest(e.Location);
             ListViewItem item = info.Item;
             var subItem = info.SubItem;
@@ -163,17 +179,24 @@ namespace KolorPicker
                     break;
 
                 case 1: // HEX
-                    TxtHex_Click(sender, e);
+                    CopyColorCode(item.SubItems[1].Text);
+                    ShowToast("색상 HEX가 복사완료!");
                     break;
 
                 case 2: // RGB
-                    TxtRgb_Click(sender, e);
+                    CopyColorCode(item.SubItems[2].Text);
+                    ShowToast("색상 RGB가 복사완료!");
                     break;
 
                 case 3: // 라벨 편집
                     EditSubItemLabel(item, subIndex);
                     break;
             }
+        }
+
+        private void ListPalette_Right(object sender, MouseEventArgs e)
+        {
+            contextMenuStrip1.Show(listPalette, e.Location);
         }
 
 
@@ -201,6 +224,8 @@ namespace KolorPicker
                 item.SubItems[subItemIndex].Text = editBox.Text;
                 this.Controls.Remove(editBox);
                 editBox.Dispose();
+                SavePalette();
+
             };
 
             editBox.KeyDown += (s, e) =>
@@ -210,6 +235,7 @@ namespace KolorPicker
                     item.SubItems[subItemIndex].Text = editBox.Text;
                     this.Controls.Remove(editBox);
                     editBox.Dispose();
+                    SavePalette();
                 }
             };
         }
@@ -224,7 +250,7 @@ namespace KolorPicker
         private void SavePalette()
         {
             List<PaletteItem> items = new List<PaletteItem>();
-            foreach(ListViewItem item in listPalette.Items)
+            foreach (ListViewItem item in listPalette.Items)
             {
                 string hex = item.SubItems[1].Text;
                 string rgb = item.SubItems[2].Text;
@@ -252,14 +278,65 @@ namespace KolorPicker
 
             foreach (var item in items)
             {
+                Color color = ColorTranslator.FromHtml(item.Hex);
                 ListViewItem lvi = new ListViewItem(""); // 색상 셀
                 lvi.SubItems.Add(item.Hex);
                 lvi.SubItems.Add(item.Rgb);
                 lvi.SubItems.Add(item.Label);
+                lvi.SubItems[0].BackColor = color;
+                lvi.UseItemStyleForSubItems = false;
+
+
                 listPalette.Items.Add(lvi);
             }
 
             ShowToast("팔레트 불러오기 완료!");
+        }
+
+        private void ListPalette_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete)
+            {
+                DeletePaletteItem();
+            }
+        }
+
+        private void DeleteMenuItem_Click(object sender, EventArgs e)
+        {
+            DeletePaletteItem();
+        }
+
+        private void DeletePaletteItem()
+        {
+            foreach (ListViewItem item in listPalette.SelectedItems)
+            {
+                listPalette.Items.Remove(item);
+            }
+            ShowToast("선택 항목 삭제됨");
+            SavePalette();
+        }
+
+        private void CopyHexMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyMenuItem(1);
+            ShowToast("색상 HEX가 복사완료!");
+        }
+
+        private void CopyRgbMenuItem_Click(object sender, EventArgs e)
+        {
+            CopyMenuItem(2);
+            ShowToast("색상 RGB가 복사완료!");
+        }
+
+        private void CopyMenuItem(int i)
+        {
+            List<string> textList = new List<string>();
+            foreach (ListViewItem item in listPalette.SelectedItems)
+            {
+                textList.Add(item.SubItems[i].Text);
+            }
+            string text = string.Join(Environment.NewLine, textList);
+            CopyColorCode(text);
         }
     }
 }
