@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.Preview = new System.Windows.Forms.PictureBox();
             this.txtHex = new System.Windows.Forms.TextBox();
             this.txtRgb = new System.Windows.Forms.TextBox();
@@ -42,14 +43,21 @@
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.PaletteContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.CopyHexMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyRgbMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.DeleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RecentColorsPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.notifyPicker = new System.Windows.Forms.NotifyIcon(this.components);
+            this.TrayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.PickMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.ExitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
-            this.contextMenuStrip1.SuspendLayout();
+            this.PaletteContextMenu.SuspendLayout();
+            this.TrayContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // Preview
@@ -165,15 +173,15 @@
             this.columnHeader4.Text = "라벨";
             this.columnHeader4.Width = 87;
             // 
-            // contextMenuStrip1
+            // PaletteContextMenu
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PaletteContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CopyHexMenuItem,
             this.CopyRgbMenuItem,
             this.toolStripSeparator1,
             this.DeleteMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(125, 76);
+            this.PaletteContextMenu.Name = "contextMenuStrip1";
+            this.PaletteContextMenu.Size = new System.Drawing.Size(125, 76);
             // 
             // CopyHexMenuItem
             // 
@@ -208,6 +216,50 @@
             this.RecentColorsPanel.Size = new System.Drawing.Size(80, 240);
             this.RecentColorsPanel.TabIndex = 7;
             // 
+            // notifyPicker
+            // 
+            this.notifyPicker.ContextMenuStrip = this.TrayContextMenu;
+            this.notifyPicker.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyPicker.Icon")));
+            this.notifyPicker.Text = "Kolor Picker";
+            this.notifyPicker.Visible = true;
+            this.notifyPicker.DoubleClick += new System.EventHandler(this.OpenMenuItem_Click);
+            // 
+            // TrayContextMenu
+            // 
+            this.TrayContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PickMenuItem,
+            this.OpenMenuItem,
+            this.toolStripSeparator2,
+            this.ExitMenuItem});
+            this.TrayContextMenu.Name = "TrayContextMenu";
+            this.TrayContextMenu.Size = new System.Drawing.Size(127, 76);
+            // 
+            // PickMenuItem
+            // 
+            this.PickMenuItem.Name = "PickMenuItem";
+            this.PickMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.PickMenuItem.Text = "색 고르기";
+            this.PickMenuItem.Click += new System.EventHandler(this.PickMenuItem_Click);
+            // 
+            // OpenMenuItem
+            // 
+            this.OpenMenuItem.Name = "OpenMenuItem";
+            this.OpenMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.OpenMenuItem.Text = "창 열기";
+            this.OpenMenuItem.Click += new System.EventHandler(this.OpenMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(123, 6);
+            // 
+            // ExitMenuItem
+            // 
+            this.ExitMenuItem.Name = "ExitMenuItem";
+            this.ExitMenuItem.Size = new System.Drawing.Size(126, 22);
+            this.ExitMenuItem.Text = "종료";
+            this.ExitMenuItem.Click += new System.EventHandler(this.ExitMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -223,12 +275,15 @@
             this.Controls.Add(this.listPalette);
             this.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Kolor Picker";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.PaletteContextMenu.ResumeLayout(false);
+            this.TrayContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -249,12 +304,18 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ContextMenuStrip PaletteContextMenu;
         private System.Windows.Forms.ToolStripMenuItem CopyHexMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CopyRgbMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem DeleteMenuItem;
         private System.Windows.Forms.FlowLayoutPanel RecentColorsPanel;
+        private System.Windows.Forms.NotifyIcon notifyPicker;
+        private System.Windows.Forms.ContextMenuStrip TrayContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem PickMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem OpenMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem ExitMenuItem;
     }
 }
 

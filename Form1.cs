@@ -24,21 +24,24 @@ namespace KolorPicker
             public string Label { get; set; }
         }
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetDC(IntPtr hWnd);
+        //[DllImport("user32.dll")]
+        //public static extern IntPtr GetDC(IntPtr hWnd);
 
-        [DllImport("gdi32.dll")]
-        public static extern uint GetPixel(IntPtr hdc, int x, int y);
+        //[DllImport("gdi32.dll")]
+        //public static extern uint GetPixel(IntPtr hdc, int x, int y);
 
-        [DllImport("user32.dll")]
-        public static extern int ReleaseDC(IntPtr hWnd, IntPtr hdc);
+        //[DllImport("user32.dll")]
+        //public static extern int ReleaseDC(IntPtr hWnd, IntPtr hdc);
 
         IKeyboardMouseEvents globalHook = Hook.GlobalEvents();
         private readonly string paletteFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, "Palette.json");
         private TextBox editBox;
-        private Queue<Color> recentColors = new Queue<Color>;
+        private Queue<Color> recentColors = new Queue<Color>();
         private const int MaxRecent = 10;
         //private Queue<string> 
+        private Point lastCursor = Point.Empty;
+        private readonly MiniForm miniForm = new MiniForm();
+        private readonly ZoomForm zoomForm = new ZoomForm();
 
         public Form1()
         {
@@ -47,55 +50,132 @@ namespace KolorPicker
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            miniForm.Show();
+            miniForm.Visible = false;
+            zoomForm.Show();
+            zoomForm.Visible = false;
+
             globalHook = Hook.GlobalEvents();
+            globalHook.OnCombination(new Dictionary<Combination, Action>
+            {
+                { Combination.FromString("Control+Shift+C"), () => BtnPicker_Click(sender, e) }
+            }); 
             globalHook.MouseClick += GlobalMouseClick;
+            globalHook.MouseWheelExt += GlobalMouseWheel;
             LoadPalette();
         }
 
         private void GlobalMouseClick(object sender, EventArgs e)
         {
-            if (ColorTimer.Enabled) ColorTimer.Stop();
+            if (ColorTimer.Enabled)
+            {
+                ShowMainWindow();
+                TxtHex_Click(sender, e);
+                ColorTimer.Stop();
+                miniForm.Visible = false;
+                zoomForm.Visible = false;
+            }
         }
+
+        private void GlobalMouseWheel(object sender, MouseEventExtArgs e)
+        {
+            if (ModifierKeys == Keys.Shift && ColorTimer.Enabled)
+            {
+                e.Handled = true;
+                int delta = e.Delta > 0 ? 1 : -1;
+                if(delta < 0 && zoomForm.ZoomFactor == 2)
+                {
+                    zoomForm.Visible = false;
+                    if(zoomForm.zoomedBitmap != null)
+                    {
+                        zoomForm.zoomedBitmap.Dispose();
+                        zoomForm.zoomedBitmap = null;
+                    }
+                }
+                else
+                {
+                    zoomForm.Visible = true;
+                    zoomForm.ZoomFactor = Math.Max(2, Math.Min(10, zoomForm.ZoomFactor + delta));
+                    zoomForm.UpdateZoom(Cursor.Position);
+                }
+            }
+            e.Handled = false;
+        }
+
+
 
         private void BtnPicker_Click(object sender, EventArgs e)
         {
             if (ColorTimer.Enabled)
             {
+                ShowMainWindow();
                 ColorTimer.Stop();
+                miniForm.Visible = false;
+                zoomForm.Visible = false;
+                if (zoomForm.zoomedBitmap != null)
+                {
+                    zoomForm.zoomedBitmap.Dispose();
+                    zoomForm.zoomedBitmap = null;
+                }
             }
             else
             {
+                Hide();
                 ColorTimer.Start();
+                Point pos = Cursor.Position;
+                miniForm.Location = new Point(pos.X + 10, pos.Y + 10);
+                miniForm.Visible = true;
             }
         }
 
-        private Color GetCursorColor()
+        //private Color GetCursorColor()
+        //{
+        //    Point cursorPos = Cursor.Position;
+        //    IntPtr hdc = GetDC(IntPtr.Zero);
+        //    uint pixel = GetPixel(hdc, cursorPos.X, cursorPos.Y);
+        //    ReleaseDC(IntPtr.Zero, hdc);
+
+        //    Color color = Color.FromArgb(
+        //        (int)(pixel & 0x000000FF),           // R
+        //        (int)(pixel & 0x0000FF00) >> 8,      // G
+        //        (int)(pixel & 0x00FF0000) >> 16      // B
+        //    );
+
+        //    return color;
+        //}
+
+        private Color GetCursorColor(Point pos)
         {
-            Point cursorPos = Cursor.Position;
-            IntPtr hdc = GetDC(IntPtr.Zero);
-            uint pixel = GetPixel(hdc, cursorPos.X, cursorPos.Y);
-            ReleaseDC(IntPtr.Zero, hdc);
-
-            Color color = Color.FromArgb(
-                (int)(pixel & 0x000000FF),           // R
-                (int)(pixel & 0x0000FF00) >> 8,      // G
-                (int)(pixel & 0x00FF0000) >> 16      // B
-            );
-
-            return color;
+            //Point pos = Cursor.Position;
+            using (Bitmap bmp = new Bitmap(1, 1))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.CopyFromScreen(pos, Point.Empty, new Size(1, 1));
+                }
+                return bmp.GetPixel(0, 0);
+            }
         }
+
 
         private void ColorTimer_Tick(object sender, EventArgs e)
         {
-            Color currentColor = GetCursorColor();
+            Point pos = Cursor.Position;
+            if (pos == lastCursor) return;
+            lastCursor = pos;
+            miniForm.Location = new Point(pos.X + 10, pos.Y + 10);
+            Color currentColor = GetCursorColor(pos);
             txtHex.Text = $"#{currentColor.R:X2}{currentColor.G:X2}{currentColor.B:X2}";
             txtRgb.Text = $"{currentColor.R}, {currentColor.G}, {currentColor.B}";
             Preview.BackColor = currentColor;
+            miniForm.Controls["miniHex"].Text = txtHex.Text;
+            miniForm.Controls["miniRgb"].Text = txtRgb.Text;
+            miniForm.Controls["colorPreview"].BackColor = currentColor;
         }
 
         private void TxtHex_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(txtHex.Text))
+            if (!string.IsNullOrWhiteSpace(txtHex.Text) || !(sender is TextBox))
             {
                 CopyColorCode(txtHex.Text);
                 ShowToast("색상 HEX가 복사완료!");
@@ -196,7 +276,7 @@ namespace KolorPicker
 
         private void ListPalette_Right(object sender, MouseEventArgs e)
         {
-            contextMenuStrip1.Show(listPalette, e.Location);
+            PaletteContextMenu.Show(listPalette, e.Location);
         }
 
 
@@ -338,11 +418,49 @@ namespace KolorPicker
             string text = string.Join(Environment.NewLine, textList);
             CopyColorCode(text);
         }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if(e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+                return;
+            }
+            TrayContextMenu.Visible = false;
+            globalHook?.Dispose();
+            base.OnFormClosing(e);
+        }
+
+        private void PickMenuItem_Click(object sender, EventArgs e)
+        {
+            BtnPicker_Click(sender, e);
+        }
+
+        private void OpenMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowMainWindow();
+        }
+
+        private void ExitMenuItem_Click(object sender, EventArgs e)
+        {
+            TrayContextMenu.Visible = false;
+            Application.Exit();
+        }
+
+        private void ShowMainWindow()
+        {
+            Show(); // 창 보이기
+            BringToFront(); // 다른 창 위로 올리기
+            Activate();     // 포커스 주기
+        }
     }
 }
 
 /*
 Install-Package Gma.System.MouseKeyHook
 Install-Package System.Text.Json
- 
+https://icon-icons.com/ko/%EC%95%84%EC%9D%B4%EC%BD%98/eyedropper/47201
+Install-Package Costura.Fody
+
 */
