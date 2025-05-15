@@ -273,6 +273,7 @@
             this.Controls.Add(this.txtHex);
             this.Controls.Add(this.Preview);
             this.Controls.Add(this.listPalette);
+            this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

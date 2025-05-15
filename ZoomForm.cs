@@ -22,6 +22,41 @@ namespace KolorPicker
         {
             InitializeComponent();
         }
+
+        // 그림자
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                const int CS_DROPSHADOW = 0x00020000;
+                CreateParams cp = base.CreateParams;
+                cp.ClassStyle |= CS_DROPSHADOW;
+                return cp;
+            }
+        }
+
+        private void ApplyRoundedCorners(int radius)
+        {
+            var bounds = new Rectangle(0, 0, this.Width, this.Height);
+            var path = new GraphicsPath();
+
+            int r = radius * 2;
+
+            path.AddArc(bounds.X, bounds.Y, r, r, 180, 90);
+            path.AddArc(bounds.Right - r, bounds.Y, r, r, 270, 90);
+            path.AddArc(bounds.Right - r, bounds.Bottom - r, r, r, 0, 90);
+            path.AddArc(bounds.X, bounds.Bottom - r, r, r, 90, 90);
+            path.CloseFigure();
+
+            this.Region = new Region(path);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            ApplyRoundedCorners(10);
+        }
+
         public void UpdateZoom(Point cursorPos)
         {
             int formSize = ZoomFactor * zoomSize;

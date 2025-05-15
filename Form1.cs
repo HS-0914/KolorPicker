@@ -24,21 +24,11 @@ namespace KolorPicker
             public string Label { get; set; }
         }
 
-        //[DllImport("user32.dll")]
-        //public static extern IntPtr GetDC(IntPtr hWnd);
-
-        //[DllImport("gdi32.dll")]
-        //public static extern uint GetPixel(IntPtr hdc, int x, int y);
-
-        //[DllImport("user32.dll")]
-        //public static extern int ReleaseDC(IntPtr hWnd, IntPtr hdc);
-
         IKeyboardMouseEvents globalHook = Hook.GlobalEvents();
-        private readonly string paletteFilePath = Path.Combine(System.Windows.Forms.Application.StartupPath, "Palette.json");
+        private readonly string paletteFilePath = Path.Combine(Application.StartupPath, "Palette.json");
         private TextBox editBox;
         private Queue<Color> recentColors = new Queue<Color>();
         private const int MaxRecent = 10;
-        //private Queue<string> 
         private Point lastCursor = Point.Empty;
         private readonly MiniForm miniForm = new MiniForm();
         private readonly ZoomForm zoomForm = new ZoomForm();
@@ -47,6 +37,8 @@ namespace KolorPicker
         {
             InitializeComponent();
         }
+
+       
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -74,6 +66,7 @@ namespace KolorPicker
                 ColorTimer.Stop();
                 miniForm.Visible = false;
                 zoomForm.Visible = false;
+                zoomForm.ZoomFactor = 2;
             }
         }
 
@@ -86,7 +79,7 @@ namespace KolorPicker
                 if(delta < 0 && zoomForm.ZoomFactor == 2)
                 {
                     zoomForm.Visible = false;
-                    if(zoomForm.zoomedBitmap != null)
+                    if (zoomForm.zoomedBitmap != null)
                     {
                         zoomForm.zoomedBitmap.Dispose();
                         zoomForm.zoomedBitmap = null;
@@ -97,6 +90,8 @@ namespace KolorPicker
                     zoomForm.Visible = true;
                     zoomForm.ZoomFactor = Math.Max(2, Math.Min(10, zoomForm.ZoomFactor + delta));
                     zoomForm.UpdateZoom(Cursor.Position);
+                    miniForm.TopMost = false;
+                    miniForm.TopMost = true;
                 }
             }
             e.Handled = false;
@@ -112,6 +107,7 @@ namespace KolorPicker
                 ColorTimer.Stop();
                 miniForm.Visible = false;
                 zoomForm.Visible = false;
+                zoomForm.ZoomFactor = 2;
                 if (zoomForm.zoomedBitmap != null)
                 {
                     zoomForm.zoomedBitmap.Dispose();
@@ -127,22 +123,6 @@ namespace KolorPicker
                 miniForm.Visible = true;
             }
         }
-
-        //private Color GetCursorColor()
-        //{
-        //    Point cursorPos = Cursor.Position;
-        //    IntPtr hdc = GetDC(IntPtr.Zero);
-        //    uint pixel = GetPixel(hdc, cursorPos.X, cursorPos.Y);
-        //    ReleaseDC(IntPtr.Zero, hdc);
-
-        //    Color color = Color.FromArgb(
-        //        (int)(pixel & 0x000000FF),           // R
-        //        (int)(pixel & 0x0000FF00) >> 8,      // G
-        //        (int)(pixel & 0x00FF0000) >> 16      // B
-        //    );
-
-        //    return color;
-        //}
 
         private Color GetCursorColor(Point pos)
         {
@@ -171,6 +151,7 @@ namespace KolorPicker
             miniForm.Controls["miniHex"].Text = txtHex.Text;
             miniForm.Controls["miniRgb"].Text = txtRgb.Text;
             miniForm.Controls["colorPreview"].BackColor = currentColor;
+       
         }
 
         private void TxtHex_Click(object sender, EventArgs e)
@@ -450,9 +431,11 @@ namespace KolorPicker
 
         private void ShowMainWindow()
         {
+            TopMost = true;
             Show(); // 창 보이기
             BringToFront(); // 다른 창 위로 올리기
             Activate();     // 포커스 주기
+            TopMost = false;
         }
     }
 }

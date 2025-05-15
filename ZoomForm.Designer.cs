@@ -41,6 +41,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Form2";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
