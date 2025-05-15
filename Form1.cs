@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.Json;
 using System.IO;
@@ -26,93 +20,126 @@ namespace KolorPicker
 
         IKeyboardMouseEvents globalHook = Hook.GlobalEvents();
         private readonly string paletteFilePath = Path.Combine(Application.StartupPath, "Palette.json");
+        private List<PaletteItem> paletteItems = new List<PaletteItem>();
         private TextBox editBox;
-        private Queue<Color> recentColors = new Queue<Color>();
-        private const int MaxRecent = 10;
         private Point lastCursor = Point.Empty;
         private readonly MiniForm miniForm = new MiniForm();
         private readonly ZoomForm zoomForm = new ZoomForm();
+        private readonly string formColor = "#EFEFEF";
 
         public Form1()
         {
             InitializeComponent();
         }
 
-       
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide();
+                return;
+            }
+            TrayContextMenu.Visible = false;
+            globalHook?.Dispose();
+            base.OnFormClosing(e);
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            miniForm.Show();
-            miniForm.Visible = false;
-            zoomForm.Show();
-            zoomForm.Visible = false;
-
-            globalHook = Hook.GlobalEvents();
-            globalHook.OnCombination(new Dictionary<Combination, Action>
-            {
-                { Combination.FromString("Control+Shift+C"), () => BtnPicker_Click(sender, e) }
-            }); 
-            globalHook.MouseClick += GlobalMouseClick;
-            globalHook.MouseWheelExt += GlobalMouseWheel;
+            BackColor = ColorTranslator.FromHtml(formColor);
+            FormInit();
+            GlobalInit();
             LoadPalette();
         }
 
-        private void GlobalMouseClick(object sender, EventArgs e)
+        private void FormInit()
         {
-            if (ColorTimer.Enabled)
-            {
-                ShowMainWindow();
-                TxtHex_Click(sender, e);
-                ColorTimer.Stop();
-                miniForm.Visible = false;
-                zoomForm.Visible = false;
-                zoomForm.ZoomFactor = 2;
-            }
+            miniForm.Show();
+            zoomForm.Show();
+            miniForm.Visible = false;
+            zoomForm.Visible = false;
         }
 
-        private void GlobalMouseWheel(object sender, MouseEventExtArgs e)
+        private void GlobalInit()
         {
-            if (ModifierKeys == Keys.Shift && ColorTimer.Enabled)
+            globalHook = Hook.GlobalEvents();
+            globalHook.OnCombination(new Dictionary<Combination, Action>
             {
-                e.Handled = true;
-                int delta = e.Delta > 0 ? 1 : -1;
-                if(delta < 0 && zoomForm.ZoomFactor == 2)
-                {
-                    zoomForm.Visible = false;
-                    if (zoomForm.zoomedBitmap != null)
-                    {
-                        zoomForm.zoomedBitmap.Dispose();
-                        zoomForm.zoomedBitmap = null;
-                    }
-                }
-                else
-                {
-                    zoomForm.Visible = true;
-                    zoomForm.ZoomFactor = Math.Max(2, Math.Min(10, zoomForm.ZoomFactor + delta));
-                    zoomForm.UpdateZoom(Cursor.Position);
-                    miniForm.TopMost = false;
-                    miniForm.TopMost = true;
-                }
+                { Combination.FromString("Control+Shift+C"), () => TogglePreview() }
+            });
+            globalHook.MouseClick += GlobalMouse_Click;
+            globalHook.MouseWheelExt += GlobalMouse_Wheel;
+        }
+
+        private void LoadPalette()
+        {
+            if (!File.Exists(paletteFilePath)) return;
+
+            string json = File.ReadAllText(paletteFilePath);
+            paletteItems = JsonSerializer.Deserialize<List<PaletteItem>>(json);
+            listPalette.Items.Clear();
+
+            foreach (PaletteItem item in paletteItems)
+            {
+                ListViewItem lvi = CreatePaletteItem(item);
+
+                listPalette.Items.Add(lvi);
             }
-            e.Handled = false;
+            ShowToast("팔레트 불러오기 완료!");
+        }
+
+        private ListViewItem CreatePaletteItem(PaletteItem item)
+        {
+            Color color = ColorTranslator.FromHtml(item.Hex);
+
+            ListViewItem lvi = new ListViewItem(""); // 색상 셀
+            lvi.SubItems[0].BackColor = color;
+            lvi.SubItems.Add(item.Hex);
+            lvi.SubItems.Add(item.Rgb);
+            lvi.SubItems.Add(item.Label);
+            lvi.UseItemStyleForSubItems = false;
+
+            return lvi;
+        }
+
+        private void GlobalMouse_Click(object sender, EventArgs e)
+        {
+            if (ColorTimer.Enabled) StopPreview();
+        }
+
+        private void GlobalMouse_Wheel(object sender, MouseEventExtArgs e)
+        {
+            if (ModifierKeys != Keys.Shift || !ColorTimer.Enabled) return;
+
+            e.Handled = true;
+
+            int delta = e.Delta > 0 ? 1 : -1;
+            if(delta < 0 && zoomForm.ZoomFactor == 2)
+            {
+                ResetZoomForm();
+                return;
+            }
+            zoomForm.Visible = true;
+            zoomForm.ZoomFactor = Math.Max(2, Math.Min(10, zoomForm.ZoomFactor + delta));
+            zoomForm.UpdateZoom(Cursor.Position);
+
+            miniForm.TopMost = false;
+            miniForm.TopMost = true;
         }
 
 
 
         private void BtnPicker_Click(object sender, EventArgs e)
         {
+            TogglePreview();
+        }
+
+        private void TogglePreview()
+        {
             if (ColorTimer.Enabled)
             {
-                ShowMainWindow();
-                ColorTimer.Stop();
-                miniForm.Visible = false;
-                zoomForm.Visible = false;
-                zoomForm.ZoomFactor = 2;
-                if (zoomForm.zoomedBitmap != null)
-                {
-                    zoomForm.zoomedBitmap.Dispose();
-                    zoomForm.zoomedBitmap = null;
-                }
+                StopPreview();
             }
             else
             {
@@ -124,9 +151,50 @@ namespace KolorPicker
             }
         }
 
+        private void StopPreview()
+        {
+            ColorTimer.Stop();
+            miniForm.Visible = false;
+            ShowMainWindow();
+            ResetZoomForm();
+        }
+
+        private void ShowMainWindow()
+        {
+            Show(); // 창 보이기
+            BringToFront(); // 다른 창 위로 올리기
+            Activate();     // 포커스 주기
+            TopMost = true;
+            TopMost = false;
+        }
+
+        private void ResetZoomForm()
+        {
+            zoomForm.Visible = false;
+            zoomForm.ZoomFactor = 2;
+            if (zoomForm.zoomedBitmap != null)
+            {
+                zoomForm.zoomedBitmap.Dispose();
+                zoomForm.zoomedBitmap = null;
+            }
+        }
+       
+        private void ColorTimer_Tick(object sender, EventArgs e)
+        {
+            Point pos = Cursor.Position;
+            if (pos == lastCursor) return;
+
+            lastCursor = pos;
+            Color currentColor = GetCursorColor(pos);
+            txtHex.Text = $"#{currentColor.R:X2}{currentColor.G:X2}{currentColor.B:X2}";
+            txtRgb.Text = $"{currentColor.R}, {currentColor.G}, {currentColor.B}";
+            ColorView.BackColor = currentColor;
+
+            miniForm.UpdatePreview(pos, currentColor);
+        }
+
         private Color GetCursorColor(Point pos)
         {
-            //Point pos = Cursor.Position;
             using (Bitmap bmp = new Bitmap(1, 1))
             {
                 using (Graphics g = Graphics.FromImage(bmp))
@@ -135,23 +203,6 @@ namespace KolorPicker
                 }
                 return bmp.GetPixel(0, 0);
             }
-        }
-
-
-        private void ColorTimer_Tick(object sender, EventArgs e)
-        {
-            Point pos = Cursor.Position;
-            if (pos == lastCursor) return;
-            lastCursor = pos;
-            miniForm.Location = new Point(pos.X + 10, pos.Y + 10);
-            Color currentColor = GetCursorColor(pos);
-            txtHex.Text = $"#{currentColor.R:X2}{currentColor.G:X2}{currentColor.B:X2}";
-            txtRgb.Text = $"{currentColor.R}, {currentColor.G}, {currentColor.B}";
-            Preview.BackColor = currentColor;
-            miniForm.Controls["miniHex"].Text = txtHex.Text;
-            miniForm.Controls["miniRgb"].Text = txtRgb.Text;
-            miniForm.Controls["colorPreview"].BackColor = currentColor;
-       
         }
 
         private void TxtHex_Click(object sender, EventArgs e)
@@ -195,23 +246,25 @@ namespace KolorPicker
 
         private void BtnAddPalette_Click(object sender, EventArgs e)
         {
-            string hex = txtHex.Text;
-            string rgb = txtRgb.Text;
-            Color color = Preview.BackColor;
-
-            if (string.IsNullOrWhiteSpace(hex)) return;
-
-            ListViewItem item = new ListViewItem();
-            item.Text = "";
-            item.SubItems.Add(hex);
-            item.SubItems.Add(rgb);
-            item.SubItems.Add("새 색상");
-
-            item.UseItemStyleForSubItems = false;
-            item.SubItems[0].BackColor = color;
-            listPalette.Items.Add(item);
-            ShowToast("팔레트에 추가되었습니다!");
+            if (string.IsNullOrWhiteSpace(txtHex.Text)) return;
+            PaletteItem pi = new PaletteItem
+            {
+                Hex = txtHex.Text,
+                Rgb = txtRgb.Text,
+                Label = "새 색상"
+            };
+            paletteItems.Add(pi);
             SavePalette();
+
+            ListViewItem lvi = CreatePaletteItem(pi);
+            listPalette.Items.Add(lvi);
+            ShowToast("팔레트에 추가되었습니다!");
+        }
+
+        private void SavePalette()
+        {
+            string json = JsonSerializer.Serialize(paletteItems, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(paletteFilePath, json);
         }
 
         private void ListPalette_MouseClick(object sender, MouseEventArgs e)
@@ -260,6 +313,12 @@ namespace KolorPicker
             PaletteContextMenu.Show(listPalette, e.Location);
         }
 
+        private void PaletteToPreview(ListViewItem item)
+        {
+            ColorView.BackColor = item.SubItems[0].BackColor;
+            txtHex.Text = item.SubItems[1].Text;
+            txtRgb.Text = item.SubItems[2].Text;
+        }
 
         private void EditSubItemLabel(ListViewItem item, int subItemIndex)
         {
@@ -301,59 +360,6 @@ namespace KolorPicker
             };
         }
 
-        private void PaletteToPreview(ListViewItem item)
-        {
-            Preview.BackColor = item.SubItems[0].BackColor;
-            txtHex.Text = item.SubItems[1].Text;
-            txtRgb.Text = item.SubItems[2].Text;
-        }
-
-        private void SavePalette()
-        {
-            List<PaletteItem> items = new List<PaletteItem>();
-            foreach (ListViewItem item in listPalette.Items)
-            {
-                string hex = item.SubItems[1].Text;
-                string rgb = item.SubItems[2].Text;
-                string label = item.SubItems[3].Text;
-
-                items.Add(new PaletteItem
-                {
-                    Hex = hex,
-                    Rgb = rgb,
-                    Label = label,
-                });
-            }
-            string json = JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(paletteFilePath, json);
-        }
-
-        private void LoadPalette()
-        {
-            if (!File.Exists(paletteFilePath)) return;
-
-            string json = File.ReadAllText(paletteFilePath);
-            var items = JsonSerializer.Deserialize<List<PaletteItem>>(json);
-
-            listPalette.Items.Clear();
-
-            foreach (var item in items)
-            {
-                Color color = ColorTranslator.FromHtml(item.Hex);
-                ListViewItem lvi = new ListViewItem(""); // 색상 셀
-                lvi.SubItems.Add(item.Hex);
-                lvi.SubItems.Add(item.Rgb);
-                lvi.SubItems.Add(item.Label);
-                lvi.SubItems[0].BackColor = color;
-                lvi.UseItemStyleForSubItems = false;
-
-
-                listPalette.Items.Add(lvi);
-            }
-
-            ShowToast("팔레트 불러오기 완료!");
-        }
-
         private void ListPalette_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete)
@@ -369,9 +375,13 @@ namespace KolorPicker
 
         private void DeletePaletteItem()
         {
-            foreach (ListViewItem item in listPalette.SelectedItems)
+            // 역순으로 삭제 (데이터 밀림 방지)
+            var selectedIndices = listPalette.SelectedIndices;
+            for (int i = selectedIndices.Count - 1; i >= 0; i--)
             {
-                listPalette.Items.Remove(item);
+                int index = selectedIndices[i];
+                listPalette.Items.RemoveAt(index);
+                paletteItems.RemoveAt(index);
             }
             ShowToast("선택 항목 삭제됨");
             SavePalette();
@@ -400,22 +410,9 @@ namespace KolorPicker
             CopyColorCode(text);
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            if(e.CloseReason == CloseReason.UserClosing)
-            {
-                e.Cancel = true;
-                Hide();
-                return;
-            }
-            TrayContextMenu.Visible = false;
-            globalHook?.Dispose();
-            base.OnFormClosing(e);
-        }
-
         private void PickMenuItem_Click(object sender, EventArgs e)
         {
-            BtnPicker_Click(sender, e);
+            TogglePreview();
         }
 
         private void OpenMenuItem_Click(object sender, EventArgs e)
@@ -428,15 +425,6 @@ namespace KolorPicker
             TrayContextMenu.Visible = false;
             Application.Exit();
         }
-
-        private void ShowMainWindow()
-        {
-            TopMost = true;
-            Show(); // 창 보이기
-            BringToFront(); // 다른 창 위로 올리기
-            Activate();     // 포커스 주기
-            TopMost = false;
-        }
     }
 }
 
@@ -445,5 +433,4 @@ Install-Package Gma.System.MouseKeyHook
 Install-Package System.Text.Json
 https://icon-icons.com/ko/%EC%95%84%EC%9D%B4%EC%BD%98/eyedropper/47201
 Install-Package Costura.Fody
-
 */

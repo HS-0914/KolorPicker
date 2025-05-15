@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.Preview = new System.Windows.Forms.PictureBox();
+            this.ColorView = new System.Windows.Forms.PictureBox();
             this.txtHex = new System.Windows.Forms.TextBox();
             this.txtRgb = new System.Windows.Forms.TextBox();
             this.ColorTimer = new System.Windows.Forms.Timer(this.components);
@@ -48,46 +48,45 @@
             this.CopyRgbMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.DeleteMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RecentColorsPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.notifyPicker = new System.Windows.Forms.NotifyIcon(this.components);
             this.TrayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.PickMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.ExitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ColorView)).BeginInit();
             this.PaletteContextMenu.SuspendLayout();
             this.TrayContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // Preview
+            // ColorView
             // 
-            this.Preview.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.Preview.Location = new System.Drawing.Point(23, 21);
-            this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(80, 80);
-            this.Preview.TabIndex = 0;
-            this.Preview.TabStop = false;
+            this.ColorView.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.ColorView.Location = new System.Drawing.Point(21, 21);
+            this.ColorView.Name = "ColorView";
+            this.ColorView.Size = new System.Drawing.Size(80, 80);
+            this.ColorView.TabIndex = 0;
+            this.ColorView.TabStop = false;
             // 
             // txtHex
             // 
             this.txtHex.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtHex.Font = new System.Drawing.Font("맑은 고딕", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.txtHex.Location = new System.Drawing.Point(123, 29);
+            this.txtHex.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.txtHex.Location = new System.Drawing.Point(107, 25);
             this.txtHex.Name = "txtHex";
             this.txtHex.ReadOnly = true;
-            this.txtHex.Size = new System.Drawing.Size(150, 27);
+            this.txtHex.Size = new System.Drawing.Size(150, 29);
             this.txtHex.TabIndex = 1;
             this.txtHex.Click += new System.EventHandler(this.TxtHex_Click);
             // 
             // txtRgb
             // 
             this.txtRgb.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.txtRgb.Font = new System.Drawing.Font("맑은 고딕", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.txtRgb.Location = new System.Drawing.Point(123, 67);
+            this.txtRgb.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.txtRgb.Location = new System.Drawing.Point(107, 63);
             this.txtRgb.Name = "txtRgb";
             this.txtRgb.ReadOnly = true;
-            this.txtRgb.Size = new System.Drawing.Size(150, 27);
+            this.txtRgb.Size = new System.Drawing.Size(150, 29);
             this.txtRgb.TabIndex = 2;
             this.txtRgb.Click += new System.EventHandler(this.TxtRgb_Click);
             // 
@@ -98,9 +97,9 @@
             // BtnPicker
             // 
             this.BtnPicker.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.BtnPicker.Location = new System.Drawing.Point(23, 107);
+            this.BtnPicker.Location = new System.Drawing.Point(261, 25);
             this.BtnPicker.Name = "BtnPicker";
-            this.BtnPicker.Size = new System.Drawing.Size(80, 30);
+            this.BtnPicker.Size = new System.Drawing.Size(160, 30);
             this.BtnPicker.TabIndex = 3;
             this.BtnPicker.Text = "PICK!";
             this.BtnPicker.UseVisualStyleBackColor = true;
@@ -111,7 +110,7 @@
             this.lblToast.AutoSize = true;
             this.lblToast.BackColor = System.Drawing.Color.LightYellow;
             this.lblToast.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblToast.Location = new System.Drawing.Point(219, 380);
+            this.lblToast.Location = new System.Drawing.Point(200, 287);
             this.lblToast.Name = "lblToast";
             this.lblToast.Size = new System.Drawing.Size(41, 17);
             this.lblToast.TabIndex = 4;
@@ -127,9 +126,9 @@
             // BtnAddPalette
             // 
             this.BtnAddPalette.Font = new System.Drawing.Font("맑은 고딕", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.BtnAddPalette.Location = new System.Drawing.Point(296, 128);
+            this.BtnAddPalette.Location = new System.Drawing.Point(261, 64);
             this.BtnAddPalette.Name = "BtnAddPalette";
-            this.BtnAddPalette.Size = new System.Drawing.Size(179, 41);
+            this.BtnAddPalette.Size = new System.Drawing.Size(160, 30);
             this.BtnAddPalette.TabIndex = 5;
             this.BtnAddPalette.Text = "+ 팔레트에 추가";
             this.BtnAddPalette.UseVisualStyleBackColor = true;
@@ -144,9 +143,9 @@
             this.columnHeader4});
             this.listPalette.FullRowSelect = true;
             this.listPalette.HideSelection = false;
-            this.listPalette.Location = new System.Drawing.Point(123, 175);
+            this.listPalette.Location = new System.Drawing.Point(21, 113);
             this.listPalette.Name = "listPalette";
-            this.listPalette.Size = new System.Drawing.Size(352, 240);
+            this.listPalette.Size = new System.Drawing.Size(401, 207);
             this.listPalette.TabIndex = 6;
             this.listPalette.UseCompatibleStateImageBehavior = false;
             this.listPalette.View = System.Windows.Forms.View.Details;
@@ -156,22 +155,22 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "색상";
-            this.columnHeader1.Width = 80;
+            this.columnHeader1.Width = 100;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "HEX";
-            this.columnHeader2.Width = 80;
+            this.columnHeader2.Width = 90;
             // 
             // columnHeader3
             // 
             this.columnHeader3.Text = "RGB";
-            this.columnHeader3.Width = 101;
+            this.columnHeader3.Width = 110;
             // 
             // columnHeader4
             // 
             this.columnHeader4.Text = "라벨";
-            this.columnHeader4.Width = 87;
+            this.columnHeader4.Width = 97;
             // 
             // PaletteContextMenu
             // 
@@ -208,13 +207,6 @@
             this.DeleteMenuItem.Size = new System.Drawing.Size(124, 22);
             this.DeleteMenuItem.Text = "삭제";
             this.DeleteMenuItem.Click += new System.EventHandler(this.DeleteMenuItem_Click);
-            // 
-            // RecentColorsPanel
-            // 
-            this.RecentColorsPanel.Location = new System.Drawing.Point(23, 175);
-            this.RecentColorsPanel.Name = "RecentColorsPanel";
-            this.RecentColorsPanel.Size = new System.Drawing.Size(80, 240);
-            this.RecentColorsPanel.TabIndex = 7;
             // 
             // notifyPicker
             // 
@@ -264,14 +256,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(494, 434);
-            this.Controls.Add(this.RecentColorsPanel);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(444, 343);
             this.Controls.Add(this.BtnAddPalette);
             this.Controls.Add(this.lblToast);
             this.Controls.Add(this.BtnPicker);
             this.Controls.Add(this.txtRgb);
             this.Controls.Add(this.txtHex);
-            this.Controls.Add(this.Preview);
+            this.Controls.Add(this.ColorView);
             this.Controls.Add(this.listPalette);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
@@ -282,7 +274,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Kolor Picker";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ColorView)).EndInit();
             this.PaletteContextMenu.ResumeLayout(false);
             this.TrayContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -292,7 +284,7 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox Preview;
+        private System.Windows.Forms.PictureBox ColorView;
         private System.Windows.Forms.TextBox txtHex;
         private System.Windows.Forms.TextBox txtRgb;
         private System.Windows.Forms.Timer ColorTimer;
@@ -310,7 +302,6 @@
         private System.Windows.Forms.ToolStripMenuItem CopyRgbMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem DeleteMenuItem;
-        private System.Windows.Forms.FlowLayoutPanel RecentColorsPanel;
         private System.Windows.Forms.NotifyIcon notifyPicker;
         private System.Windows.Forms.ContextMenuStrip TrayContextMenu;
         private System.Windows.Forms.ToolStripMenuItem PickMenuItem;

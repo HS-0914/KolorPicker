@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace KolorPicker
@@ -14,13 +8,41 @@ namespace KolorPicker
     public partial class ZoomForm: Form
     {
         public Bitmap zoomedBitmap;
+        private Point captureCursor;
         public int ZoomFactor { get; set; } = 2;
         private const int zoomSize = 50;
-        private Point captureCursor;
 
         public ZoomForm()
         {
             InitializeComponent();
+        }
+
+        public void UpdateZoom(Point cursorPos)
+        {
+            int formSize = ZoomFactor * zoomSize;
+            if (zoomedBitmap == null)
+            {
+                Rectangle captureArea = new Rectangle(
+                cursorPos.X - zoomSize / 2,
+                cursorPos.Y - zoomSize / 2,
+                zoomSize,
+                zoomSize
+                );
+                zoomedBitmap = new Bitmap(zoomSize, zoomSize);
+                using (Graphics g = Graphics.FromImage(zoomedBitmap))
+                {
+                    g.CopyFromScreen(captureArea.Location, Point.Empty, captureArea.Size);
+                }
+                Location = new Point(cursorPos.X - formSize / 2, cursorPos.Y - formSize / 2);
+                captureCursor = cursorPos;
+            }
+            else
+            {
+                Location = new Point(captureCursor.X - formSize / 2, captureCursor.Y - formSize / 2);
+
+            }
+            Size = new Size(formSize, formSize);
+            Invalidate();
         }
 
         // 그림자
@@ -32,6 +54,22 @@ namespace KolorPicker
                 CreateParams cp = base.CreateParams;
                 cp.ClassStyle |= CS_DROPSHADOW;
                 return cp;
+            }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            ApplyRoundedCorners(10);
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (zoomedBitmap != null)
+            {
+                e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+                e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
+                e.Graphics.DrawImage(zoomedBitmap, new Rectangle(0, 0, Width, Height));
             }
         }
 
@@ -49,50 +87,6 @@ namespace KolorPicker
             path.CloseFigure();
 
             this.Region = new Region(path);
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            ApplyRoundedCorners(10);
-        }
-
-        public void UpdateZoom(Point cursorPos)
-        {
-            int formSize = ZoomFactor * zoomSize;
-            if(zoomedBitmap == null)
-            {
-                Rectangle captureArea = new Rectangle(
-                cursorPos.X - zoomSize / 2,
-                cursorPos.Y - zoomSize / 2,
-                zoomSize,
-                zoomSize
-                );
-                zoomedBitmap = new Bitmap(zoomSize, zoomSize);
-                using (Graphics g = Graphics.FromImage(zoomedBitmap))
-                {
-                    g.CopyFromScreen(captureArea.Location, Point.Empty, captureArea.Size);
-                }
-                Location = new Point(cursorPos.X - formSize / 2, cursorPos.Y - formSize / 2);
-                captureCursor = cursorPos;
-            } 
-            else
-            {
-                Location = new Point(captureCursor.X - formSize / 2, captureCursor.Y - formSize / 2);
-
-            }
-            Size = new Size(formSize, formSize);
-            Invalidate();
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            if (zoomedBitmap != null)
-            {
-                e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-                e.Graphics.PixelOffsetMode = PixelOffsetMode.Half;
-                e.Graphics.DrawImage(zoomedBitmap, new Rectangle(0, 0, Width, Height));
-            }
         }
     }
 }
