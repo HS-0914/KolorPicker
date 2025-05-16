@@ -96,3 +96,5 @@
 
 - 팔레트 및 설정은 실행 파일과 같은 디렉토리의 JSON 파일로 저장됩니다.
 - 전역 단축키는 프로그램 종료 시 해제되며, 프로그램은 하나의 프로그램만 실행 가능합니다.
+
+더보기([노션](https://volcano-agate-3e1.notion.site/KolorPicker-1f55097b7c3a803e9eaef597bae2f572))
