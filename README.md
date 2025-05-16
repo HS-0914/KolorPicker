@@ -70,19 +70,20 @@
 
 - 색상 추출 및 확대
 
-<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/134225438/444340313-7efd0a54-59c7-4aaf-8b1d-d3703ea1adb2.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250516%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250516T011820Z&X-Amz-Expires=300&X-Amz-Signature=65823c22aa51370cbddb31aeb5f8eedd6d3462cbc2b7a1e7a112a332658c656e&X-Amz-SignedHeaders=host" width="400" />
+![색상추출_코드복사](https://github.com/user-attachments/assets/866a3083-87de-4275-8933-cf4afba7739a)
+
 
 <br>
 
 - 팔레트 저장 및 관리
 
-<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/134225438/444336395-0946801f-c282-4f75-a809-b886d3822e18.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250516%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250516T005400Z&X-Amz-Expires=300&X-Amz-Signature=19e08a34898c069851cfe0d25ac99552c2fbae1353b14adda405eda03353eef8&X-Amz-SignedHeaders=host" width="400" />
+![팔레트 저장 및 관리](https://github.com/user-attachments/assets/01bc7a3c-8338-4de9-a53a-06c0b01c25ae)
 
 <br>
 
 - 기타 기능(시스템 트레이 실행)
 
-<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/134225438/444339623-d73b693e-12bc-4e72-915e-02ccab9a63c6.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20250516%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20250516T011447Z&X-Amz-Expires=300&X-Amz-Signature=c3059b63bb119dfd511c081ba0be9c61dc6447cf709bd9f7cc941dba38a83dcb&X-Amz-SignedHeaders=host" width="400" />
+<img src="https://github.com/user-attachments/assets/3204fb64-f15b-43f9-888d-079fe8cc6ef2" width="400" />
 
 ## 🔧 설치 & 실행
 
