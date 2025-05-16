@@ -86,6 +86,9 @@
 <img src="https://github.com/user-attachments/assets/3204fb64-f15b-43f9-888d-079fe8cc6ef2" width="400" />
 
 ## 🔧 설치 & 실행
+1. [다운로드](https://github.com/HS-0914/KolorPicker/releases/download/v1.0/KolorPickerSetup.zip)
+2. 압축 해제 후 KolorPickerSetup.exe 실행해서 KolorPicker설치
+3. KolorPicker.exe 실행
 
 ---
 
